@@ -2,17 +2,17 @@
 
 ## 漏洞
 
-![](https://github.com/zh1x1an/pwn_ctf_wiki/raw/main/b00k/img/1_b00ks.jpg)
+![](./img/1_b00ks.jpg)
 
 `my_read` 函数存在 null byte off-by-one ，可以先 read author name 为 32 个字节，然后创建一个 book，即可覆盖掉 author name 末尾的 `\x00`，然后打印就可以得到一个堆指针。
 
-![](https://github.com/zh1x1an/pwn_ctf_wiki/raw/main/b00k/img/2_b00ks.jpg)
+![](./img/2_b00ks.jpg)
 
 ida 里面可以看出，该 read 功能在 edit，create，change author name 都有用到。
 
 ## 漏洞利用
 
-![](https://github.com/zh1x1an/pwn_ctf_wiki/raw/main/b00k/img/3_b00ks.jpg)
+![](./img/3_b00ks.jpg)
 
 `author_name` 和 `struct_array_ptr` 都存储在 bss 段，且 `author_name` 在 `struct_array_ptr` 低地址处并存在 off-by-one 漏洞。可以利用该漏洞将 `stru1_ptr` 低位覆盖为0，指向第地址处我们可控的区域（右侧 heap 图中 `des_1` 的黄色 data 区域）
 
@@ -36,7 +36,7 @@ create_book(name1_size,"a"*name1_size,des1_size,"b"*des1_size)
 create_book(0x21000,"c"*8,0x21000,"d"*8)
 ```
 
-![](https://github.com/zh1x1an/pwn_ctf_wiki/raw/main/b00k/img/4_b00ks.jpg)
+![](./img/4_b00ks.jpg)
 
 此时 `struct_ptr1` 为 0x0000555555758160，如果用 change author name 的 off-by-one 漏洞，既可覆盖为 0x0000555555758100，但是需要在 0x0000555555758100 的地址处提前布置伪造的结构如下：
 
@@ -55,7 +55,7 @@ create_book(0x21000,"c"*8,0x21000,"d"*8)
 x/64gx 0x555555758010
 ```
 
-![](https://github.com/zh1x1an/pwn_ctf_wiki/raw/main/b00k/img/5_b00ks.jpg)
+![](./img/5_b00ks.jpg)
 
 - 打印 bss 段存储的 `author_name` 和 `stru_ptr`
 
@@ -63,7 +63,7 @@ x/64gx 0x555555758010
 x/18gx 0x555555756060-0x30
 ```
 
-![](https://github.com/zh1x1an/pwn_ctf_wiki/raw/main/b00k/img/6_b00ks.jpg)
+![](./img/6_b00ks.jpg)
 
 ### 泄漏 book1 指针地址
 
