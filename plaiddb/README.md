@@ -1,4 +1,4 @@
-# ctf_wike plaiddb
+# ctf_wiki plaiddb
 
 ## 功能
 
