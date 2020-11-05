@@ -259,3 +259,11 @@ PUT("attack",0x68,payload)
 
 p.interactive()
 ```
+
+## 参考资料
+
+[https://ctf-wiki.github.io/ctf-wiki/pwn/linux/glibc-heap/off_by_one-zh/](https://ctf-wiki.github.io/ctf-wiki/pwn/linux/glibc-heap/off_by_one-zh/)
+
+[https://4ngelboy.blogspot.com/2016/10/span-display-block-overflow-hidden_10.html](https://4ngelboy.blogspot.com/2016/10/span-display-block-overflow-hidden_10.html)
+
+[https://www.bilibili.com/video/BV1hW41187q2](https://www.bilibili.com/video/BV1hW41187q2)
