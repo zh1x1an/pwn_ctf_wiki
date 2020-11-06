@@ -185,6 +185,8 @@ free 掉 第二个 heap (也就是 `free(1)` ):
 
 此时第二个 heap 的 data chunk 会先被 free ，然后当 free 掉他的 manage chunk 时产生 overlap。当下次 add 0x30 大小时，会得到 overlap 状态的 data chunk。
 
+同时，下一次 add 0x30 时，先分配 0x20 大小，得到是之前的 data chunk 作为现在的 manage chunk，位于高地址。而得到的 0x40 的 data chunk，却是之前的 manage chunk，位于低地址。这样就可以利用现在的 data chunk 溢出到 manage chunk。布置 free 或者 atoi 的 got 后，即可通过 edit 功能实现 leak 和 篡改 got，进一步 getshell 。
+
 ## exp
 
 ```python
